@@ -1,4 +1,4 @@
-import Konva from "konva";
+// import Konva from "konva";
 
 const modal = document.getElementById('settingsModal');
 const directionSelect = document.getElementById('coordinateDirection');

@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import SpriteText from 'three-spritetext';
+// import * as THREE from 'three';
+// import SpriteText from 'three-spritetext';
 
 // база для опображения
 const renderer = new THREE.WebGLRenderer({ antialias: true });
