@@ -7,11 +7,17 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 
 let camera, scene, renderer, arrowZ, arrowX, arrowY, 
     spriteZ, spriteY, spriteX, 
-    vectorY, vectorX, vectorZ, origin
+    vectorY, vectorX, vectorZ, origin,
+    cube
 let arcZ, arcX, arcY
 const canvas = ref(null);
 const orientation = ref(false);
 
+const X = ref(3);
+const Y = ref(3);
+const Z = ref(3);
+
+const moveSpeed = 1;
 const length = 15;
 const hexY = 0x00ff00; // green
 const hexX = 0xff0000; // red
@@ -19,6 +25,22 @@ const hexZ = 0x0000ff; // blue
 
 const zCoord = computed(() => {
   return orientation.value ? 1 : -1
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key.toLowerCase() === "a") {
+    Z.value -= moveSpeed;
+  } else if (event.key.toLowerCase() === "d") {
+    Z.value += moveSpeed;
+  } else if (event.key.toLowerCase() === "w") {
+    Y.value += moveSpeed;
+  } else if (event.key.toLowerCase() === "s") {
+    Y.value -= moveSpeed;
+  } else if (event.key.toLowerCase() === "q") {
+    X.value -= moveSpeed;
+  } else if (event.key.toLowerCase() === "e") {
+    X.value += moveSpeed;
+  }
 });
 
 onMounted(() => {
@@ -123,6 +145,8 @@ function createTextSprite(text, color) {
 }
 
 function animate() {
+  cube.position.set(X.value, Y.value, Z.value);
+  // Обновление стрелочек положительного направления вращения
   if (arrowZ) {
     const vectorZ = new THREE.Vector3(0, 0, zCoord.value)
     vectorZ.normalize()
@@ -138,17 +162,14 @@ function animate() {
       arcZ.rotation.x = 0
     }
   } if (arrowY) {
+    const vecY = new THREE.Vector3(0, 1, 0)
+    vecY.normalize()
     if (zCoord.value < 0) {
-      arcY.rotation.z = 0
-      arcY.rotation.y = 0
+      arcY.rotation.x = Math.PI
+      arcY.position.set(0, 2 * length, 0)
     } else {
-      const vectorY = new THREE.Vector3(0, 1, 0)
-    
-      spriteY.position.copy(vectorY.clone().multiplyScalar(length + 3))
-      arrowY.setDirection(vectorY)
-      
-      // Разворачиваем только дугу, ось Y остаётся на месте
-      arcY.rotation.y = Math.PI
+      arcY.rotation.x = 0
+      arcY.position.set(0, 0, 0)
     }
   }
 
@@ -210,20 +231,38 @@ function init() {
   scene.add(arcX)
   scene.add(arcY)
   scene.add(arcZ)
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1)
+  scene.add(ambientLight)
+
+  const geometry = new THREE.BoxGeometry(X.value, Y.value, Z.value)
+  const material = new THREE.MeshStandardMaterial({ 
+    color: 0x808080
+  })
+  cube = new THREE.Mesh(geometry, material)
+  scene.add(cube)
 }
 </script>
 
 <template>
   <div class="wrapper">
     <canvas ref="canvas"></canvas>
+    <span>Управление: ADWS + EQ</span>
+    <span v-if="orientation">Координаты центра куба: [{{ X }}, {{ Y }}, {{ Z }}]</span>
+    <span v-else>Координаты центра куба: [{{ X }}, {{ Y }}, {{ -Z }}]</span>
   </div>
   <div class="menu">
     <div class="group">
+      <div class="btn">
+        <h3>положительное направление вращения</h3>
+        <span v-if="!orientation">По часовой стрелке</span>
+        <span v-else>Против часовой стрелки</span>
+      </div>
       <h3>Ориентация</h3>
       <div class="btn">
         <input type="checkbox" v-model="orientation" />
         <span v-if="orientation">Right-handed</span>
-        <span v-if="!orientation">Left-handed</span>
+        <span v-else>Left-handed</span>
       </div>
     </div>
   </div>
@@ -232,6 +271,7 @@ function init() {
 <style scoped> 
   .wrapper {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;

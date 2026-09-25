@@ -13,6 +13,11 @@ dist-ssr
 coverage
 *.local
 
+# TypeScript declaration files (generated)
+src/**/*.d.ts
+!src/vite-env.d.ts
+!src/env.d.ts
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
