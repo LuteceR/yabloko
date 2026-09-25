@@ -8,11 +8,11 @@
 
     <div>
       <h1>You did it bro!</h1>
-      <router-link to="/page">page</router-link>
+      <router-link to="/yabloko/page">page</router-link>
     </div>
   </header>
 
-  <main>
+  <main class='birder-2'>
     <router-view></router-view>
   </main>
 </template>
